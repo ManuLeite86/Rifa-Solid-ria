@@ -1,0 +1,1167 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rifa Solidária - Sorteio 14/09</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode/1.5.3/qrcode.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .gradient-bg { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .card-shadow { box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+        .number-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(60px, 1fr)); gap: 8px; }
+        .number-btn { transition: all 0.2s ease; }
+        .number-btn:hover { transform: translateY(-2px); }
+        .pulse-animation { animation: pulse 2s infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Navigation -->
+    <nav class="gradient-bg text-white p-4 shadow-lg">
+        <div class="max-w-6xl mx-auto flex justify-between items-center">
+            <h1 class="text-2xl font-bold">🎯 Rifa Solidária</h1>
+            <div class="flex gap-4">
+                <button onclick="showBuyerView()" class="px-4 py-2 bg-white/20 rounded-lg hover:bg-white/30 transition-colors">
+                    👥 Comprar Números
+                </button>
+                <button onclick="showDrawView()" class="px-4 py-2 bg-white/20 rounded-lg hover:bg-white/30 transition-colors">
+                    🎲 Dia do Sorteio
+                </button>
+                <button onclick="requestAdminAccess()" class="px-4 py-2 bg-white/20 rounded-lg hover:bg-white/30 transition-colors">
+                    🔐 Administrador
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Admin Login Modal -->
+    <div id="adminLoginModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-xl p-6 max-w-md w-full mx-4">
+            <h3 class="text-xl font-semibold mb-4">🔐 Acesso Administrativo</h3>
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Senha</label>
+                <input type="password" id="adminPassword" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="Digite a senha">
+            </div>
+            <div class="flex gap-3">
+                <button onclick="closeAdminLogin()" class="flex-1 px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors">
+                    Cancelar
+                </button>
+                <button onclick="validateAdminAccess()" class="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                    Entrar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Buyer View -->
+    <div id="buyerView" class="max-w-4xl mx-auto p-6">
+        <!-- Header Info -->
+        <div class="bg-white rounded-xl card-shadow p-6 mb-6">
+            <div class="text-center mb-6">
+                <h2 class="text-3xl font-bold text-gray-800 mb-2">🎁 RIFA SOLIDÁRIA</h2>
+                <div class="bg-red-100 text-red-800 px-4 py-2 rounded-lg inline-block font-semibold">
+                    📅 SORTEIO: 14/09 às 19h
+                </div>
+            </div>
+            
+            <div class="grid md:grid-cols-2 gap-6">
+                <div class="bg-blue-50 p-4 rounded-lg">
+                    <h3 class="font-semibold text-blue-800 mb-3">🏆 Prêmios</h3>
+                    <div class="space-y-2">
+                        <div class="flex items-center gap-2">
+                            <span class="bg-yellow-400 text-yellow-900 px-2 py-1 rounded text-sm font-bold">1º</span>
+                            <span>Perfume Essencial Masculino</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="bg-gray-400 text-gray-900 px-2 py-1 rounded text-sm font-bold">2º</span>
+                            <span>Bolo de 2kg (tema à escolha)</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-green-50 p-4 rounded-lg">
+                    <h3 class="font-semibold text-green-800 mb-3">💰 Informações</h3>
+                    <div class="space-y-2 text-sm">
+                        <div><strong>Números:</strong> 1 a 100</div>
+                        <div><strong>Valor:</strong> R$ 10,00 cada</div>
+                        <div><strong>Pagamento:</strong> PIX</div>
+                        <div><strong>WhatsApp:</strong> (81) 98495-4965</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Number Selection -->
+        <div class="bg-white rounded-xl card-shadow p-6 mb-6">
+            <h3 class="text-xl font-semibold mb-4">🎯 Escolha seus números</h3>
+            <div class="mb-4">
+                <span class="text-sm text-gray-600">
+                    <span class="inline-block w-4 h-4 bg-green-500 rounded mr-2"></span>Disponível
+                    <span class="inline-block w-4 h-4 bg-yellow-500 rounded mr-2 ml-4"></span>Reservado
+                    <span class="inline-block w-4 h-4 bg-orange-500 rounded mr-2 ml-4"></span>Aguardando
+                    <span class="inline-block w-4 h-4 bg-red-500 rounded mr-2 ml-4"></span>Vendido
+                </span>
+            </div>
+            <div class="number-grid" id="numberGrid"></div>
+        </div>
+
+        <!-- Selected Numbers -->
+        <div id="selectedSection" class="bg-white rounded-xl card-shadow p-6 mb-6 hidden">
+            <h3 class="text-xl font-semibold mb-4">🛒 Números Selecionados</h3>
+            <div id="selectedNumbers" class="flex flex-wrap gap-2 mb-4"></div>
+            <div class="flex justify-between items-center mb-4">
+                <span class="text-lg font-semibold">Total: R$ <span id="totalAmount">0,00</span></span>
+                <button onclick="generatePayment()" class="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors font-semibold">
+                    💳 Gerar PIX para Pagamento
+                </button>
+            </div>
+        </div>
+
+        <!-- Payment Section -->
+        <div id="paymentSection" class="bg-white rounded-xl card-shadow p-6 hidden">
+            <h3 class="text-xl font-semibold mb-4">💳 Pagamento PIX</h3>
+            <div class="grid md:grid-cols-2 gap-6">
+                <div class="text-center">
+                    <div id="qrcode" class="mb-4 flex justify-center"></div>
+                    <p class="text-sm text-gray-600">Escaneie o QR Code ou use a chave PIX</p>
+                </div>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Chave PIX (CPF)</label>
+                        <div class="bg-gray-100 p-3 rounded-lg font-mono text-sm">10821516450</div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Valor</label>
+                        <div class="bg-gray-100 p-3 rounded-lg font-semibold text-lg" id="paymentAmount">R$ 0,00</div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Seu Nome Completo *</label>
+                        <input type="text" id="buyerName" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="Digite seu nome completo">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Telefone/WhatsApp *</label>
+                        <input type="tel" id="buyerPhone" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="(81) 99999-9999">
+                    </div>
+                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+                        <h4 class="font-semibold text-blue-800 mb-3">💳 Dados para PIX:</h4>
+                        <div class="space-y-2 text-sm">
+                            <div class="flex justify-between items-center bg-white p-2 rounded">
+                                <span class="text-gray-600">Chave PIX (CPF):</span>
+                                <span class="font-mono font-bold">108.215.164-50</span>
+                            </div>
+                            <div class="flex justify-between items-center bg-white p-2 rounded">
+                                <span class="text-gray-600">Valor:</span>
+                                <span class="font-bold text-green-600" id="pixValue">R$ 0,00</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4">
+                        <h4 class="font-semibold text-yellow-800 mb-2">📱 Como confirmar o pagamento:</h4>
+                        <ol class="text-sm text-yellow-700 space-y-1">
+                            <li>1. Faça o PIX usando a chave CPF: <strong>108.215.164-50</strong></li>
+                            <li>2. Envie o comprovante via WhatsApp: <strong>(81) 98495-4965</strong></li>
+                            <li>3. Clique em "Confirmar Pagamento" abaixo</li>
+                            <li>4. Aguarde a confirmação manual do administrador</li>
+                        </ol>
+                    </div>
+                    <div class="text-center">
+                        <button onclick="sendToWhatsApp()" class="w-full bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition-colors font-semibold flex items-center justify-center gap-2">
+                            📱 Enviar Comprovante via WhatsApp
+                        </button>
+                        <p class="text-sm text-gray-600 mt-3">
+                            ⚠️ <strong>Importante:</strong> Após enviar o comprovante, aguarde a confirmação do administrador.<br>
+                            Seus números ficarão reservados até a aprovação do pagamento.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Draw Day View -->
+    <div id="drawView" class="max-w-4xl mx-auto p-6 hidden">
+        <div class="bg-white rounded-xl card-shadow p-6 mb-6">
+            <div class="text-center mb-6">
+                <h2 class="text-3xl font-bold text-purple-800 mb-2">🎲 DIA DO SORTEIO</h2>
+                <div class="bg-purple-100 text-purple-800 px-4 py-2 rounded-lg inline-block font-semibold">
+                    📅 14/09 às 19h - AO VIVO
+                </div>
+            </div>
+            
+            <div class="grid md:grid-cols-2 gap-6 mb-6">
+                <div class="bg-yellow-50 p-4 rounded-lg">
+                    <h3 class="font-semibold text-yellow-800 mb-3">🏆 Prêmios do Sorteio</h3>
+                    <div class="space-y-3">
+                        <div class="flex items-center gap-3 bg-white p-3 rounded-lg">
+                            <span class="bg-yellow-400 text-yellow-900 px-3 py-1 rounded-full text-sm font-bold">1º LUGAR</span>
+                            <span class="font-semibold">Perfume Essencial Masculino</span>
+                        </div>
+                        <div class="flex items-center gap-3 bg-white p-3 rounded-lg">
+                            <span class="bg-gray-400 text-gray-900 px-3 py-1 rounded-full text-sm font-bold">2º LUGAR</span>
+                            <span class="font-semibold">Bolo de 2kg (tema à escolha)</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-blue-50 p-4 rounded-lg">
+                    <h3 class="font-semibold text-blue-800 mb-3">📊 Status da Rifa</h3>
+                    <div class="space-y-2 text-sm">
+                        <div class="flex justify-between">
+                            <span>Números Vendidos:</span>
+                            <span class="font-bold" id="drawSoldCount">0</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>Total Arrecadado:</span>
+                            <span class="font-bold text-green-600" id="drawRevenue">R$ 0,00</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>Participantes:</span>
+                            <span class="font-bold" id="drawParticipants">0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Draw Section -->
+            <div class="bg-gradient-to-r from-purple-100 to-pink-100 rounded-xl p-6 mb-6">
+                <h3 class="text-xl font-semibold text-center mb-6">🎯 SORTEIO DOS GANHADORES</h3>
+                
+                <div class="grid md:grid-cols-2 gap-6 mb-6">
+                    <!-- 1st Place -->
+                    <div class="bg-white rounded-lg p-6 text-center">
+                        <div class="bg-yellow-400 text-yellow-900 px-4 py-2 rounded-full inline-block font-bold mb-4">
+                            🥇 1º LUGAR
+                        </div>
+                        <h4 class="font-semibold mb-2">Perfume Essencial Masculino</h4>
+                        <div id="firstWinner" class="text-center">
+                            <div class="text-6xl font-bold text-gray-300 mb-2" id="firstNumber">?</div>
+                            <div class="text-sm text-gray-500" id="firstWinnerName">Aguardando sorteio...</div>
+                        </div>
+                    </div>
+                    
+                    <!-- 2nd Place -->
+                    <div class="bg-white rounded-lg p-6 text-center">
+                        <div class="bg-gray-400 text-gray-900 px-4 py-2 rounded-full inline-block font-bold mb-4">
+                            🥈 2º LUGAR
+                        </div>
+                        <h4 class="font-semibold mb-2">Bolo de 2kg (tema à escolha)</h4>
+                        <div id="secondWinner" class="text-center">
+                            <div class="text-6xl font-bold text-gray-300 mb-2" id="secondNumber">?</div>
+                            <div class="text-sm text-gray-500" id="secondWinnerName">Aguardando sorteio...</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-center">
+                    <button onclick="handleDrawClick()" id="drawButton" class="bg-purple-600 text-white px-8 py-4 rounded-lg hover:bg-purple-700 transition-colors font-bold text-lg">
+                        🎲 REALIZAR SORTEIO AO VIVO
+                    </button>
+                    <p class="text-sm text-gray-600 mt-2">Sorteio transparente e ao vivo para todos os participantes</p>
+                </div>
+            </div>
+
+            <!-- Participants List -->
+            <div class="bg-white rounded-xl p-6">
+                <h3 class="text-lg font-semibold mb-4">👥 Participantes do Sorteio</h3>
+                <div id="participantsList" class="space-y-2 max-h-60 overflow-y-auto">
+                    <!-- Participants will be listed here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin View -->
+    <div id="adminView" class="max-w-6xl mx-auto p-6 hidden">
+        <div class="bg-white rounded-xl card-shadow p-6 mb-6">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold">🔐 Painel Administrativo</h2>
+                <button onclick="logoutAdmin()" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors">
+                    🚪 Sair
+                </button>
+            </div>
+            
+            <!-- Stats -->
+            <div class="grid md:grid-cols-4 gap-4 mb-6">
+                <div class="bg-green-100 p-4 rounded-lg text-center">
+                    <div class="text-2xl font-bold text-green-800" id="soldCount">0</div>
+                    <div class="text-sm text-green-600">Vendidos</div>
+                </div>
+                <div class="bg-yellow-100 p-4 rounded-lg text-center">
+                    <div class="text-2xl font-bold text-yellow-800" id="reservedCount">0</div>
+                    <div class="text-sm text-yellow-600">Reservados</div>
+                </div>
+                <div class="bg-blue-100 p-4 rounded-lg text-center">
+                    <div class="text-2xl font-bold text-blue-800" id="availableCount">100</div>
+                    <div class="text-sm text-blue-600">Disponíveis</div>
+                </div>
+                <div class="bg-purple-100 p-4 rounded-lg text-center">
+                    <div class="text-2xl font-bold text-purple-800" id="totalRevenue">R$ 0</div>
+                    <div class="text-sm text-purple-600">Arrecadado</div>
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="flex gap-4 mb-6">
+                <button onclick="exportPDF()" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors">
+                    📄 Exportar PDF
+                </button>
+                <button onclick="exportExcel()" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors">
+                    📊 Exportar Excel
+                </button>
+                <button onclick="drawWinners()" class="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors">
+                    🎲 Sortear Ganhadores (1º e 2º)
+                </button>
+            </div>
+
+            <!-- Pending Payments -->
+            <div id="pendingPayments" class="mb-6">
+                <h3 class="text-lg font-semibold mb-4">⏳ Pagamentos Pendentes de Confirmação</h3>
+                <div id="pendingList" class="space-y-3">
+                    <!-- Pending payments will be listed here -->
+                </div>
+            </div>
+
+            <!-- Admin Number Grid -->
+            <div class="mb-6">
+                <h3 class="text-lg font-semibold mb-4">📊 Status dos Números</h3>
+                <div class="number-grid" id="adminNumberGrid"></div>
+            </div>
+
+            <!-- Sales Report -->
+            <div>
+                <h3 class="text-lg font-semibold mb-4">📈 Relatório de Vendas</h3>
+                <div class="overflow-x-auto">
+                    <table class="w-full border-collapse border border-gray-300">
+                        <thead class="bg-gray-100">
+                            <tr>
+                                <th class="border border-gray-300 p-2 text-left">Número</th>
+                                <th class="border border-gray-300 p-2 text-left">Nome</th>
+                                <th class="border border-gray-300 p-2 text-left">Telefone</th>
+                                <th class="border border-gray-300 p-2 text-left">Status</th>
+                                <th class="border border-gray-300 p-2 text-left">Valor</th>
+                                <th class="border border-gray-300 p-2 text-left">Data/Hora</th>
+                            </tr>
+                        </thead>
+                        <tbody id="salesTable">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Data storage
+        let raffleData = {
+            numbers: {},
+            sales: []
+        };
+
+        // Initialize raffle numbers
+        for (let i = 1; i <= 100; i++) {
+            raffleData.numbers[i] = { status: 'available', buyer: null, phone: null, date: null };
+        }
+
+        let selectedNumbers = [];
+        let isAdminLoggedIn = false;
+
+        // Initialize the page
+        function init() {
+            createNumberGrid();
+            createAdminNumberGrid();
+            updateStats();
+            updateSalesTable();
+        }
+
+        // Admin access functions
+        function requestAdminAccess() {
+            document.getElementById('adminLoginModal').classList.remove('hidden');
+            document.getElementById('adminPassword').focus();
+        }
+
+        function closeAdminLogin() {
+            document.getElementById('adminLoginModal').classList.add('hidden');
+            document.getElementById('adminPassword').value = '';
+        }
+
+        function validateAdminAccess() {
+            const password = document.getElementById('adminPassword').value;
+            if (password === 'Werttrew1') {
+                isAdminLoggedIn = true;
+                closeAdminLogin();
+                showAdminView();
+            } else {
+                alert('Senha incorreta! Tente novamente.');
+                document.getElementById('adminPassword').value = '';
+                document.getElementById('adminPassword').focus();
+            }
+        }
+
+        function logoutAdmin() {
+            isAdminLoggedIn = false;
+            showBuyerView();
+        }
+
+        // Create buyer number grid
+        function createNumberGrid() {
+            const grid = document.getElementById('numberGrid');
+            grid.innerHTML = '';
+            
+            for (let i = 1; i <= 100; i++) {
+                const button = document.createElement('button');
+                button.textContent = i;
+                button.className = `number-btn w-14 h-14 rounded-lg font-semibold text-sm ${getNumberButtonClass(i)}`;
+                button.onclick = () => toggleNumber(i);
+                button.disabled = raffleData.numbers[i].status !== 'available';
+                grid.appendChild(button);
+            }
+        }
+
+        // Create admin number grid
+        function createAdminNumberGrid() {
+            const grid = document.getElementById('adminNumberGrid');
+            grid.innerHTML = '';
+            
+            for (let i = 1; i <= 100; i++) {
+                const div = document.createElement('div');
+                div.textContent = i;
+                div.className = `w-14 h-14 rounded-lg font-semibold text-sm flex items-center justify-center ${getAdminNumberClass(i)}`;
+                div.title = `Número ${i} - ${getStatusText(raffleData.numbers[i].status)}${raffleData.numbers[i].buyer ? ` - ${raffleData.numbers[i].buyer}` : ''}${raffleData.numbers[i].phone ? ` - ${raffleData.numbers[i].phone}` : ''}`;
+                grid.appendChild(div);
+            }
+        }
+
+        function getNumberButtonClass(number) {
+            const status = raffleData.numbers[number].status;
+            if (selectedNumbers.includes(number)) {
+                return 'bg-blue-600 text-white border-2 border-blue-800';
+            }
+            switch (status) {
+                case 'available': return 'bg-green-500 text-white hover:bg-green-600';
+                case 'reserved': return 'bg-yellow-500 text-white cursor-not-allowed';
+                case 'pending': return 'bg-orange-500 text-white cursor-not-allowed';
+                case 'sold': return 'bg-red-500 text-white cursor-not-allowed';
+                default: return 'bg-gray-300 text-gray-600';
+            }
+        }
+
+        function getAdminNumberClass(number) {
+            const status = raffleData.numbers[number].status;
+            switch (status) {
+                case 'available': return 'bg-green-500 text-white';
+                case 'reserved': return 'bg-yellow-500 text-white';
+                case 'pending': return 'bg-orange-500 text-white';
+                case 'sold': return 'bg-red-500 text-white';
+                default: return 'bg-gray-300 text-gray-600';
+            }
+        }
+
+        function getStatusText(status) {
+            switch (status) {
+                case 'available': return 'Disponível';
+                case 'reserved': return 'Reservado';
+                case 'pending': return 'Aguardando Confirmação';
+                case 'sold': return 'Vendido';
+                default: return 'Desconhecido';
+            }
+        }
+
+        function updatePendingPayments() {
+            const pendingList = document.getElementById('pendingList');
+            const pendingNumbers = Object.keys(raffleData.numbers).filter(num => raffleData.numbers[num].status === 'pending');
+            
+            if (pendingNumbers.length === 0) {
+                pendingList.innerHTML = '<p class="text-gray-500 text-center py-4">Nenhum pagamento pendente</p>';
+                return;
+            }
+            
+            // Group by buyer
+            const groupedPending = {};
+            pendingNumbers.forEach(num => {
+                const data = raffleData.numbers[num];
+                const key = `${data.buyer}-${data.phone}`;
+                if (!groupedPending[key]) {
+                    groupedPending[key] = {
+                        buyer: data.buyer,
+                        phone: data.phone,
+                        numbers: [],
+                        date: data.date
+                    };
+                }
+                groupedPending[key].numbers.push(num);
+            });
+            
+            pendingList.innerHTML = '';
+            Object.values(groupedPending).forEach(group => {
+                const total = group.numbers.length * 10;
+                const div = document.createElement('div');
+                div.className = 'bg-orange-50 border border-orange-200 rounded-lg p-4';
+                div.innerHTML = `
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <h4 class="font-semibold text-orange-800">${group.buyer}</h4>
+                            <p class="text-sm text-orange-600">📱 ${group.phone}</p>
+                            <p class="text-sm text-orange-600">🎯 Números: ${group.numbers.join(', ')}</p>
+                            <p class="text-sm text-orange-600">💰 Total: R$ ${total.toFixed(2).replace('.', ',')}</p>
+                            <p class="text-xs text-orange-500">📅 ${group.date.toLocaleString('pt-BR')}</p>
+                        </div>
+                        <div class="flex gap-2">
+                            <button onclick="approvePayment('${group.buyer}', '${group.phone}')" class="bg-green-600 text-white px-3 py-1 rounded text-sm hover:bg-green-700">
+                                ✅ Aprovar
+                            </button>
+                            <button onclick="rejectPayment('${group.buyer}', '${group.phone}')" class="bg-red-600 text-white px-3 py-1 rounded text-sm hover:bg-red-700">
+                                ❌ Rejeitar
+                            </button>
+                        </div>
+                    </div>
+                `;
+                pendingList.appendChild(div);
+            });
+        }
+
+        function approvePayment(buyer, phone) {
+            const pendingNumbers = Object.keys(raffleData.numbers).filter(num => 
+                raffleData.numbers[num].status === 'pending' && 
+                raffleData.numbers[num].buyer === buyer && 
+                raffleData.numbers[num].phone === phone
+            );
+            
+            const total = pendingNumbers.length * 10;
+            const approvalDate = new Date();
+            
+            pendingNumbers.forEach(number => {
+                raffleData.numbers[number].status = 'sold';
+                
+                // Add to sales record
+                raffleData.sales.push({
+                    number: parseInt(number),
+                    buyer: buyer,
+                    phone: phone,
+                    amount: 10,
+                    date: raffleData.numbers[number].date
+                });
+            });
+            
+            // Generate receipt
+            generateReceipt(buyer, phone, pendingNumbers, total, approvalDate);
+            
+            createNumberGrid();
+            createAdminNumberGrid();
+            updateStats();
+            updateSalesTable();
+            updatePendingPayments();
+        }
+
+        function rejectPayment(buyer, phone) {
+            const pendingNumbers = Object.keys(raffleData.numbers).filter(num => 
+                raffleData.numbers[num].status === 'pending' && 
+                raffleData.numbers[num].buyer === buyer && 
+                raffleData.numbers[num].phone === phone
+            );
+            
+            pendingNumbers.forEach(number => {
+                raffleData.numbers[number].status = 'available';
+                raffleData.numbers[number].buyer = null;
+                raffleData.numbers[number].phone = null;
+                raffleData.numbers[number].date = null;
+                raffleData.numbers[number].amount = null;
+            });
+            
+            alert(`Pagamento rejeitado para ${buyer}.\nNúmeros ${pendingNumbers.join(', ')} voltaram a ficar disponíveis.`);
+            
+            createNumberGrid();
+            createAdminNumberGrid();
+            updateStats();
+            updatePendingPayments();
+        }
+
+        function toggleNumber(number) {
+            if (raffleData.numbers[number].status !== 'available') return;
+            
+            const index = selectedNumbers.indexOf(number);
+            if (index > -1) {
+                selectedNumbers.splice(index, 1);
+            } else {
+                selectedNumbers.push(number);
+            }
+            
+            updateSelectedNumbers();
+            createNumberGrid();
+        }
+
+        function updateSelectedNumbers() {
+            const section = document.getElementById('selectedSection');
+            const container = document.getElementById('selectedNumbers');
+            const totalElement = document.getElementById('totalAmount');
+            
+            if (selectedNumbers.length === 0) {
+                section.classList.add('hidden');
+                return;
+            }
+            
+            section.classList.remove('hidden');
+            container.innerHTML = '';
+            
+            selectedNumbers.sort((a, b) => a - b).forEach(number => {
+                const span = document.createElement('span');
+                span.textContent = number;
+                span.className = 'bg-blue-100 text-blue-800 px-3 py-1 rounded-full font-semibold';
+                container.appendChild(span);
+            });
+            
+            const total = selectedNumbers.length * 10;
+            totalElement.textContent = total.toFixed(2).replace('.', ',');
+        }
+
+        function generatePayment() {
+            if (selectedNumbers.length === 0) return;
+            
+            // Reserve selected numbers
+            selectedNumbers.forEach(number => {
+                raffleData.numbers[number].status = 'reserved';
+            });
+            
+            const total = selectedNumbers.length * 10;
+            document.getElementById('paymentAmount').textContent = `R$ ${total.toFixed(2).replace('.', ',')}`;
+            document.getElementById('pixValue').textContent = `R$ ${total.toFixed(2).replace('.', ',')}`;
+            
+            const qrContainer = document.getElementById('qrcode');
+            qrContainer.innerHTML = '';
+            
+            // Create PIX data string
+            const pixData = `PIX|CPF:10821516450|VALOR:${total.toFixed(2)}|RIFA:${selectedNumbers.join(',')}`;
+            
+            // Try to generate QR Code
+            try {
+                QRCode.toCanvas(pixData, { 
+                    width: 200,
+                    height: 200,
+                    margin: 2,
+                    color: {
+                        dark: '#000000',
+                        light: '#FFFFFF'
+                    }
+                }, function (error, canvas) {
+                    if (error) {
+                        console.log('QR Code error, showing fallback');
+                        showQRFallback(qrContainer, total);
+                    } else {
+                        qrContainer.appendChild(canvas);
+                    }
+                });
+            } catch (e) {
+                console.log('QR Code library error, showing fallback');
+                showQRFallback(qrContainer, total);
+            }
+            
+            document.getElementById('paymentSection').classList.remove('hidden');
+            createNumberGrid();
+            updateStats();
+        }
+
+        function showQRFallback(container, total) {
+            container.innerHTML = `
+                <div class="bg-blue-50 border-2 border-blue-200 p-6 rounded-lg text-center">
+                    <div class="text-6xl mb-3">📱</div>
+                    <p class="text-lg font-semibold text-blue-800 mb-2">QR Code PIX</p>
+                    <p class="text-sm text-blue-600 mb-4">Use os dados abaixo para fazer o PIX</p>
+                    <div class="space-y-2">
+                        <div class="bg-white p-3 rounded border">
+                            <p class="text-xs text-gray-600">Chave PIX (CPF)</p>
+                            <p class="font-mono font-bold">108.215.164-50</p>
+                        </div>
+                        <div class="bg-white p-3 rounded border">
+                            <p class="text-xs text-gray-600">Valor</p>
+                            <p class="font-bold text-green-600 text-lg">R$ ${total.toFixed(2).replace('.', ',')}</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function sendToWhatsApp() {
+            const buyerName = document.getElementById('buyerName').value.trim();
+            const buyerPhone = document.getElementById('buyerPhone').value.trim();
+            
+            if (!buyerName) {
+                alert('Por favor, digite seu nome completo antes de enviar.');
+                return;
+            }
+            
+            if (!buyerPhone) {
+                alert('Por favor, digite seu telefone antes de enviar.');
+                return;
+            }
+            
+            const now = new Date();
+            const total = selectedNumbers.length * 10;
+            
+            // Mark numbers as pending (waiting for admin confirmation)
+            selectedNumbers.forEach(number => {
+                raffleData.numbers[number].status = 'pending';
+                raffleData.numbers[number].buyer = buyerName;
+                raffleData.numbers[number].phone = buyerPhone;
+                raffleData.numbers[number].date = now;
+                raffleData.numbers[number].amount = total;
+            });
+            
+            const message = `🎯 *RIFA SOLIDÁRIA - COMPROVANTE*\n\n👤 *Nome:* ${buyerName}\n📱 *Telefone:* ${buyerPhone}\n🎯 *Números:* ${selectedNumbers.join(', ')}\n💰 *Valor:* R$ ${total.toFixed(2).replace('.', ',')}\n💳 *Chave PIX:* 108.215.164-50\n\n📎 *Segue comprovante em anexo*\n\n_Aguardando confirmação do administrador_`;
+            
+            const whatsappUrl = `https://wa.me/5581984954965?text=${encodeURIComponent(message)}`;
+            window.open(whatsappUrl, '_blank');
+            
+            alert(`✅ Comprovante enviado!\n\nNúmeros reservados: ${selectedNumbers.join(', ')}\nComprador: ${buyerName}\nValor: R$ ${total.toFixed(2).replace('.', ',')}\n\n📱 Comprovante enviado para WhatsApp!\n\n⏳ Aguarde a confirmação do administrador.\nSeus números ficarão reservados até a aprovação.`);
+            
+            // Reset selection
+            selectedNumbers = [];
+            updateSelectedNumbers();
+            document.getElementById('paymentSection').classList.add('hidden');
+            document.getElementById('buyerName').value = '';
+            document.getElementById('buyerPhone').value = '';
+            
+            createNumberGrid();
+            createAdminNumberGrid();
+            updateStats();
+            updatePendingPayments();
+        }
+
+
+
+        function showBuyerView() {
+            document.getElementById('buyerView').classList.remove('hidden');
+            document.getElementById('drawView').classList.add('hidden');
+            document.getElementById('adminView').classList.add('hidden');
+        }
+
+        function showDrawView() {
+            document.getElementById('buyerView').classList.add('hidden');
+            document.getElementById('drawView').classList.remove('hidden');
+            document.getElementById('adminView').classList.add('hidden');
+            updateDrawStats();
+            updateParticipantsList();
+        }
+
+        function showAdminView() {
+            if (!isAdminLoggedIn) {
+                requestAdminAccess();
+                return;
+            }
+            document.getElementById('buyerView').classList.add('hidden');
+            document.getElementById('drawView').classList.add('hidden');
+            document.getElementById('adminView').classList.remove('hidden');
+        }
+
+        function updateStats() {
+            const sold = Object.values(raffleData.numbers).filter(n => n.status === 'sold').length;
+            const reserved = Object.values(raffleData.numbers).filter(n => n.status === 'reserved').length;
+            const available = Object.values(raffleData.numbers).filter(n => n.status === 'available').length;
+            const revenue = sold * 10;
+            
+            document.getElementById('soldCount').textContent = sold;
+            document.getElementById('reservedCount').textContent = reserved;
+            document.getElementById('availableCount').textContent = available;
+            document.getElementById('totalRevenue').textContent = `R$ ${revenue}`;
+        }
+
+        function updateSalesTable() {
+            const tbody = document.getElementById('salesTable');
+            tbody.innerHTML = '';
+            
+            raffleData.sales.forEach(sale => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td class="border border-gray-300 p-2">${sale.number}</td>
+                    <td class="border border-gray-300 p-2">${sale.buyer}</td>
+                    <td class="border border-gray-300 p-2">${sale.phone}</td>
+                    <td class="border border-gray-300 p-2">
+                        <span class="bg-green-100 text-green-800 px-2 py-1 rounded text-sm">Vendido</span>
+                    </td>
+                    <td class="border border-gray-300 p-2">R$ ${sale.amount.toFixed(2).replace('.', ',')}</td>
+                    <td class="border border-gray-300 p-2">${sale.date.toLocaleString('pt-BR')}</td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function exportPDF() {
+            alert('Funcionalidade de exportação PDF seria implementada com uma biblioteca específica em um ambiente de produção.');
+        }
+
+        function exportExcel() {
+            alert('Funcionalidade de exportação Excel seria implementada com uma biblioteca específica em um ambiente de produção.');
+        }
+
+        function generateReceipt(buyer, phone, numbers, total, approvalDate) {
+            // Create receipt content
+            const receiptContent = `
+🎯 RIFA SOLIDÁRIA - COMPROVANTE DE PAGAMENTO
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+✅ PAGAMENTO CONFIRMADO
+
+👤 COMPRADOR: ${buyer}
+📱 TELEFONE: ${phone}
+📅 DATA CONFIRMAÇÃO: ${approvalDate.toLocaleString('pt-BR')}
+
+🎯 NÚMEROS ADQUIRIDOS: ${numbers.join(', ')}
+🔢 QUANTIDADE: ${numbers.length} número(s)
+💰 VALOR TOTAL: R$ ${total.toFixed(2).replace('.', ',')}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🏆 PRÊMIOS:
+🥇 1º LUGAR: Perfume Essencial Masculino
+🥈 2º LUGAR: Bolo de 2kg (tema à escolha)
+
+📅 SORTEIO: 14/09 às 19h
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+✨ SEUS NÚMEROS ESTÃO CONFIRMADOS!
+Boa sorte no sorteio! 🍀
+
+📞 Contato: (81) 98495-4965
+            `;
+
+            // Show receipt modal
+            showReceiptModal(receiptContent, buyer, phone);
+        }
+
+        function showReceiptModal(receiptContent, buyer, phone) {
+            // Create modal
+            const modal = document.createElement('div');
+            modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+            modal.innerHTML = `
+                <div class="bg-white rounded-xl p-6 max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-xl font-semibold text-green-800">✅ Comprovante Gerado</h3>
+                        <button onclick="closeReceiptModal()" class="text-gray-500 hover:text-gray-700 text-2xl">&times;</button>
+                    </div>
+                    
+                    <div class="bg-gray-50 p-4 rounded-lg mb-6 font-mono text-sm whitespace-pre-line border" id="receiptContent">${receiptContent}</div>
+                    
+                    <div class="flex gap-3">
+                        <button onclick="copyReceipt()" class="flex-1 bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition-colors font-semibold">
+                            📋 Copiar Comprovante
+                        </button>
+                        <button onclick="sendReceiptToWhatsApp('${buyer}', '${phone}')" class="flex-1 bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition-colors font-semibold">
+                            📱 Enviar via WhatsApp
+                        </button>
+                        <button onclick="printReceipt()" class="flex-1 bg-purple-600 text-white py-3 rounded-lg hover:bg-purple-700 transition-colors font-semibold">
+                            🖨️ Imprimir
+                        </button>
+                    </div>
+                    
+                    <div class="mt-4 p-3 bg-green-50 border border-green-200 rounded-lg">
+                        <p class="text-sm text-green-700">
+                            <strong>✅ Pagamento aprovado com sucesso!</strong><br>
+                            O comprovante foi gerado e pode ser enviado para o comprador.
+                        </p>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+            window.currentReceiptModal = modal;
+        }
+
+        function closeReceiptModal() {
+            if (window.currentReceiptModal) {
+                document.body.removeChild(window.currentReceiptModal);
+                window.currentReceiptModal = null;
+            }
+        }
+
+        function copyReceipt() {
+            const receiptContent = document.getElementById('receiptContent').textContent;
+            navigator.clipboard.writeText(receiptContent).then(() => {
+                alert('📋 Comprovante copiado para a área de transferência!');
+            }).catch(() => {
+                // Fallback for older browsers
+                const textArea = document.createElement('textarea');
+                textArea.value = receiptContent;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                alert('📋 Comprovante copiado para a área de transferência!');
+            });
+        }
+
+        function sendReceiptToWhatsApp(buyer, phone) {
+            const receiptContent = document.getElementById('receiptContent').textContent;
+            const message = `Olá ${buyer}! 🎉\n\nSeu pagamento foi confirmado com sucesso!\n\n${receiptContent}`;
+            
+            const whatsappUrl = `https://wa.me/${phone.replace(/\D/g, '')}?text=${encodeURIComponent(message)}`;
+            window.open(whatsappUrl, '_blank');
+            
+            alert(`📱 WhatsApp aberto para enviar comprovante para ${buyer}!`);
+        }
+
+        function printReceipt() {
+            const receiptContent = document.getElementById('receiptContent').textContent;
+            const printWindow = window.open('', '_blank');
+            printWindow.document.write(`
+                <html>
+                    <head>
+                        <title>Comprovante - Rifa Solidária</title>
+                        <style>
+                            body { font-family: 'Courier New', monospace; margin: 20px; }
+                            pre { white-space: pre-wrap; word-wrap: break-word; }
+                        </style>
+                    </head>
+                    <body>
+                        <pre>${receiptContent}</pre>
+                    </body>
+                </html>
+            `);
+            printWindow.document.close();
+            printWindow.print();
+        }
+
+        function drawWinners() {
+            const soldNumbers = Object.keys(raffleData.numbers).filter(num => raffleData.numbers[num].status === 'sold');
+            if (soldNumbers.length < 2) {
+                alert('É necessário pelo menos 2 números vendidos para realizar o sorteio!');
+                return;
+            }
+            
+            // Shuffle and pick first two numbers
+            const shuffled = [...soldNumbers].sort(() => 0.5 - Math.random());
+            const firstWinner = shuffled[0];
+            const secondWinner = shuffled[1];
+            
+            const winner1 = raffleData.numbers[firstWinner];
+            const winner2 = raffleData.numbers[secondWinner];
+            
+            alert(`🎉 RESULTADO DO SORTEIO!\n\n🥇 1º LUGAR - PERFUME ESSENCIAL MASCULINO\nNúmero: ${firstWinner}\nGanhador: ${winner1.buyer}\nTelefone: ${winner1.phone}\n\n🥈 2º LUGAR - BOLO DE 2KG\nNúmero: ${secondWinner}\nGanhador: ${winner2.buyer}\nTelefone: ${winner2.phone}\n\nParabéns aos ganhadores! 🎊`);
+        }
+
+        function updateDrawStats() {
+            const sold = Object.values(raffleData.numbers).filter(n => n.status === 'sold').length;
+            const revenue = sold * 10;
+            const participants = new Set(Object.values(raffleData.numbers).filter(n => n.status === 'sold').map(n => n.buyer)).size;
+            
+            document.getElementById('drawSoldCount').textContent = sold;
+            document.getElementById('drawRevenue').textContent = `R$ ${revenue.toFixed(2).replace('.', ',')}`;
+            document.getElementById('drawParticipants').textContent = participants;
+        }
+
+        function updateParticipantsList() {
+            const participantsList = document.getElementById('participantsList');
+            const soldNumbers = Object.keys(raffleData.numbers).filter(num => raffleData.numbers[num].status === 'sold');
+            
+            if (soldNumbers.length === 0) {
+                participantsList.innerHTML = '<p class="text-gray-500 text-center py-4">Nenhum participante ainda</p>';
+                return;
+            }
+            
+            // Group by buyer
+            const participants = {};
+            soldNumbers.forEach(num => {
+                const data = raffleData.numbers[num];
+                if (!participants[data.buyer]) {
+                    participants[data.buyer] = {
+                        name: data.buyer,
+                        phone: data.phone,
+                        numbers: []
+                    };
+                }
+                participants[data.buyer].numbers.push(num);
+            });
+            
+            participantsList.innerHTML = '';
+            Object.values(participants).forEach(participant => {
+                const div = document.createElement('div');
+                div.className = 'bg-gray-50 p-3 rounded-lg flex justify-between items-center';
+                div.innerHTML = `
+                    <div>
+                        <div class="font-semibold">${participant.name}</div>
+                        <div class="text-sm text-gray-600">📱 ${participant.phone}</div>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-sm font-semibold">Números: ${participant.numbers.join(', ')}</div>
+                        <div class="text-xs text-gray-500">${participant.numbers.length} número(s)</div>
+                    </div>
+                `;
+                participantsList.appendChild(div);
+            });
+        }
+
+        let drawInProgress = false;
+        let drawResults = { first: null, second: null };
+        let currentDrawStep = 0; // 0 = not started, 1 = drawing first, 2 = drawing second, 3 = completed
+
+        function performLiveDraw() {
+            const soldNumbers = Object.keys(raffleData.numbers).filter(num => raffleData.numbers[num].status === 'sold');
+            
+            if (soldNumbers.length < 2) {
+                alert('⚠️ É necessário pelo menos 2 números vendidos para realizar o sorteio!');
+                return;
+            }
+            
+            if (drawInProgress) {
+                alert('⏳ Sorteio já está em andamento!');
+                return;
+            }
+            
+            if (currentDrawStep === 3) {
+                alert('✅ Sorteio já foi realizado!');
+                return;
+            }
+            
+            drawInProgress = true;
+            currentDrawStep = 1;
+            document.getElementById('drawButton').disabled = true;
+            document.getElementById('drawButton').textContent = '🎲 SORTEANDO 1º LUGAR...';
+            
+            // Start with first place draw
+            animateFirstPlace(soldNumbers);
+        }
+
+        function animateFirstPlace(soldNumbers) {
+            let animationCount = 0;
+            const maxAnimations = 25;
+            
+            // Reset first place display
+            document.getElementById('firstNumber').className = 'text-6xl font-bold text-purple-600 mb-2 pulse-animation';
+            document.getElementById('firstWinnerName').textContent = 'Sorteando...';
+            document.getElementById('firstWinnerName').className = 'text-sm text-purple-600 font-semibold';
+            
+            const animationInterval = setInterval(() => {
+                // Show random number for first place only
+                const randomFirst = soldNumbers[Math.floor(Math.random() * soldNumbers.length)];
+                document.getElementById('firstNumber').textContent = randomFirst;
+                
+                animationCount++;
+                
+                if (animationCount >= maxAnimations) {
+                    clearInterval(animationInterval);
+                    finalizeFirstPlace(soldNumbers);
+                }
+            }, 120);
+        }
+
+        function finalizeFirstPlace(soldNumbers) {
+            // Pick first winner
+            const shuffled = [...soldNumbers].sort(() => 0.5 - Math.random());
+            const firstWinner = shuffled[0];
+            const winner1 = raffleData.numbers[firstWinner];
+            
+            // Store first result
+            drawResults.first = { number: firstWinner, winner: winner1 };
+            
+            // Update first place display
+            document.getElementById('firstNumber').textContent = firstWinner;
+            document.getElementById('firstNumber').className = 'text-6xl font-bold text-yellow-600 mb-2';
+            document.getElementById('firstWinnerName').textContent = `🎉 ${winner1.buyer}`;
+            document.getElementById('firstWinnerName').className = 'text-sm text-yellow-700 font-semibold';
+            
+            // Show first winner announcement
+            setTimeout(() => {
+                alert(`🥇 1º LUGAR SORTEADO!\n\n🏆 PERFUME ESSENCIAL MASCULINO\nNúmero: ${firstWinner}\nGanhador: ${winner1.buyer}\nTelefone: ${winner1.phone}\n\n🎲 Agora vamos sortear o 2º lugar!`);
+                
+                // Update button for second draw
+                document.getElementById('drawButton').textContent = '🎲 SORTEAR 2º LUGAR';
+                document.getElementById('drawButton').disabled = false;
+                currentDrawStep = 2;
+                drawInProgress = false;
+            }, 1500);
+        }
+
+        function animateSecondPlace(soldNumbers) {
+            let animationCount = 0;
+            const maxAnimations = 25;
+            
+            // Reset second place display
+            document.getElementById('secondNumber').className = 'text-6xl font-bold text-purple-600 mb-2 pulse-animation';
+            document.getElementById('secondWinnerName').textContent = 'Sorteando...';
+            document.getElementById('secondWinnerName').className = 'text-sm text-purple-600 font-semibold';
+            
+            const animationInterval = setInterval(() => {
+                // Show random number for second place only (excluding first winner)
+                const availableNumbers = soldNumbers.filter(num => num !== drawResults.first.number);
+                const randomSecond = availableNumbers[Math.floor(Math.random() * availableNumbers.length)];
+                document.getElementById('secondNumber').textContent = randomSecond;
+                
+                animationCount++;
+                
+                if (animationCount >= maxAnimations) {
+                    clearInterval(animationInterval);
+                    finalizeSecondPlace(soldNumbers);
+                }
+            }, 120);
+        }
+
+        function finalizeSecondPlace(soldNumbers) {
+            // Pick second winner (excluding first winner)
+            const availableNumbers = soldNumbers.filter(num => num !== drawResults.first.number);
+            const shuffled = [...availableNumbers].sort(() => 0.5 - Math.random());
+            const secondWinner = shuffled[0];
+            const winner2 = raffleData.numbers[secondWinner];
+            
+            // Store second result
+            drawResults.second = { number: secondWinner, winner: winner2 };
+            
+            // Update second place display
+            document.getElementById('secondNumber').textContent = secondWinner;
+            document.getElementById('secondNumber').className = 'text-6xl font-bold text-gray-600 mb-2';
+            document.getElementById('secondWinnerName').textContent = `🎉 ${winner2.buyer}`;
+            document.getElementById('secondWinnerName').className = 'text-sm text-gray-700 font-semibold';
+            
+            // Update button to completed state
+            document.getElementById('drawButton').textContent = '✅ SORTEIO CONCLUÍDO';
+            document.getElementById('drawButton').className = 'bg-green-600 text-white px-8 py-4 rounded-lg font-bold text-lg cursor-not-allowed';
+            document.getElementById('drawButton').disabled = true;
+            currentDrawStep = 3;
+            
+            // Show final celebration
+            setTimeout(() => {
+                alert(`🎉 SORTEIO CONCLUÍDO!\n\n🥇 1º LUGAR - PERFUME ESSENCIAL MASCULINO\nNúmero: ${drawResults.first.number}\nGanhador: ${drawResults.first.winner.buyer}\nTelefone: ${drawResults.first.winner.phone}\n\n🥈 2º LUGAR - BOLO DE 2KG\nNúmero: ${drawResults.second.number}\nGanhador: ${drawResults.second.winner.buyer}\nTelefone: ${drawResults.second.winner.phone}\n\n🎊 Parabéns aos ganhadores!\nObrigado a todos os participantes!`);
+            }, 1500);
+            
+            drawInProgress = false;
+        }
+
+        function handleDrawClick() {
+            const soldNumbers = Object.keys(raffleData.numbers).filter(num => raffleData.numbers[num].status === 'sold');
+            
+            if (currentDrawStep === 0) {
+                // Start first draw
+                performLiveDraw();
+            } else if (currentDrawStep === 2) {
+                // Start second draw
+                drawInProgress = true;
+                document.getElementById('drawButton').disabled = true;
+                document.getElementById('drawButton').textContent = '🎲 SORTEANDO 2º LUGAR...';
+                animateSecondPlace(soldNumbers);
+            } else if (currentDrawStep === 3) {
+                alert('✅ Sorteio já foi concluído!');
+            }
+        }
+
+        // Allow Enter key to submit admin login
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('adminPassword').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    validateAdminAccess();
+                }
+            });
+        });
+
+        // Initialize on page load
+        init();
+        
+        // Update pending payments on admin view
+        setInterval(() => {
+            if (!document.getElementById('adminView').classList.contains('hidden')) {
+                updatePendingPayments();
+            }
+        }, 5000);
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'973f5829d3fa801a',t:'MTc1NjAwMTc1Mi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
